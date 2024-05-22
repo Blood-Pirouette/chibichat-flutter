@@ -3,12 +3,13 @@ import 'dart:convert';
 
 class APIClass {
   Map<String, dynamic> prompt;
+  String ipAddress;
 
-  APIClass({required this.prompt});
+  APIClass({required this.prompt, required this.ipAddress});
 
   Future<Response> sendPrompt() async {
     return post(
-      Uri.parse('http://192.168.12.202:5001/api/v1/generate'),
+      Uri.parse('http://$ipAddress:5001/api/v1/generate'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

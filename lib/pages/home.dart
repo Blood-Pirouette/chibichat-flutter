@@ -15,6 +15,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String promptInput = '';
+  String ipAddress = '';
   String output = '';
   int counter = 0;
   List<Message> responses = [
@@ -31,7 +32,8 @@ class _HomeState extends State<Home> {
   void sendPrompt() async {
     PromptClass promptObject = PromptClass(prompt: promptInput);
     Map<String, dynamic> prompt = promptObject.toJson();
-    APIClass requestObject = APIClass(prompt: prompt);
+    APIClass requestObject = APIClass(prompt: prompt, ipAddress: ipAddress);
+    output = 'Sent';
     Response responseObject = await requestObject.sendPrompt();
     var decodedResponse = jsonDecode(responseObject.body);
     var textObject = decodedResponse['results'];
@@ -51,8 +53,11 @@ class _HomeState extends State<Home> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
+            /* Creates output of prompt */
             Text(output),
-            Column(
+
+            /* Creates messages from messagecard */
+            /*Column(
               children: responses
                   .map((response) => MessageCard(
                         delete: () {
@@ -63,10 +68,13 @@ class _HomeState extends State<Home> {
                         messageObject: response,
                       ))
                   .toList(),
-            ),
+            ),*/
+
             const SizedBox(
               height: 20,
             ),
+
+            /* Settings button */
             TextButton.icon(
               onPressed: () {
                 setState(() {
@@ -80,6 +88,23 @@ class _HomeState extends State<Home> {
               width: 250,
               height: 10,
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                SizedBox(
+                  width: 250,
+                  child: TextField(
+                    onChanged: (value) => ipAddress = value,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Enter IP Address',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            /* Row containing button and text field */
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.end,

@@ -1,2 +1,3 @@
-# chibichat-flutter
+# WIP chibichat-flutter
+
 ChibiChat implementation in flutter
