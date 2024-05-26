@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:chibichat/message.dart';
-import 'package:chibichat/message_card.dart';
+import 'package:chibichat/classes/message.dart';
+import 'package:chibichat/classes/message_card.dart';
 import 'package:chibichat/services/api_class.dart';
 import 'package:chibichat/services/prompt_class.dart';
 import 'package:flutter/widgets.dart';
@@ -19,51 +19,27 @@ class _HomeState extends State<Home> {
   String ipAddress = '';
   String output = '';
   int counter = 0;
-  List<Message> responses = [
-    Message(
-      message: 'Hello',
-      messageId: 1,
-    ),
-    Message(
-      message: 'How are you?',
-      messageId: 2,
-    ),
-    Message(
-      message: 'How are you?',
-      messageId: 2,
-    ),
-    Message(
-      message: 'How are you?',
-      messageId: 2,
-    ),
-    Message(
-      message: 'How are you?',
-      messageId: 2,
-    ),
-    Message(
-      message: 'How are you?',
-      messageId: 2,
-    ),
-    Message(
-      message: 'How are you?',
-      messageId: 2,
-    ),
-    Message(
-      message: 'How are you?',
-      messageId: 2,
-    ),
-  ];
+  List<Message> responses = [];
+  List<String> messageStringList = [];
+  String messagesString = '';
 
   void sendPrompt() async {
-    PromptClass promptObject = PromptClass(prompt: promptInput);
+    responses.add(Message(message: promptInput, messageId: 1));
+    setState(() {});
+    promptInput = " [INST] $promptInput [/INST] ";
+    messageStringList.add(promptInput);
+    messagesString = messageStringList.join();
+
+    PromptClass promptObject = PromptClass(prompt: messagesString);
     Map<String, dynamic> prompt = promptObject.toJson();
     APIClass requestObject = APIClass(prompt: prompt, ipAddress: ipAddress);
-    output = 'Sent';
     Response responseObject = await requestObject.sendPrompt();
     var decodedResponse = jsonDecode(responseObject.body);
     var textObject = decodedResponse['results'];
     output = textObject[0]['text'];
+    responses.add(Message(message: output, messageId: 2));
     setState(() {});
+    messageStringList.add(output);
   }
 
   @override
@@ -79,7 +55,9 @@ class _HomeState extends State<Home> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             /* Creates output of prompt */
-            Text(output),
+            //Text(output),
+
+            /* List view of messages */
             Expanded(
               child: ListView(
                 shrinkWrap: true,
@@ -114,6 +92,8 @@ class _HomeState extends State<Home> {
               width: 250,
               height: 10,
             ),
+
+            /* Textfield for IP Address */
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -130,7 +110,8 @@ class _HomeState extends State<Home> {
                 ),
               ],
             ),
-            /* Row containing button and text field */
+
+            /* Row containing button and text field for prompt*/
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.end,
