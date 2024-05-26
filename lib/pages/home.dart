@@ -4,6 +4,7 @@ import 'package:chibichat/message.dart';
 import 'package:chibichat/message_card.dart';
 import 'package:chibichat/services/api_class.dart';
 import 'package:chibichat/services/prompt_class.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart';
 
 class Home extends StatefulWidget {
@@ -22,6 +23,30 @@ class _HomeState extends State<Home> {
     Message(
       message: 'Hello',
       messageId: 1,
+    ),
+    Message(
+      message: 'How are you?',
+      messageId: 2,
+    ),
+    Message(
+      message: 'How are you?',
+      messageId: 2,
+    ),
+    Message(
+      message: 'How are you?',
+      messageId: 2,
+    ),
+    Message(
+      message: 'How are you?',
+      messageId: 2,
+    ),
+    Message(
+      message: 'How are you?',
+      messageId: 2,
+    ),
+    Message(
+      message: 'How are you?',
+      messageId: 2,
     ),
     Message(
       message: 'How are you?',
@@ -55,21 +80,22 @@ class _HomeState extends State<Home> {
           children: [
             /* Creates output of prompt */
             Text(output),
-
-            /* Creates messages from messagecard */
-            /*Column(
-              children: responses
-                  .map((response) => MessageCard(
-                        delete: () {
-                          setState(() {
-                            responses.remove(response);
-                          });
-                        },
-                        messageObject: response,
-                      ))
-                  .toList(),
-            ),*/
-
+            Expanded(
+              child: ListView(
+                shrinkWrap: true,
+                padding: const EdgeInsets.all(20.0),
+                children: responses
+                    .map((response) => MessageCard(
+                          delete: () {
+                            setState(() {
+                              responses.remove(response);
+                            });
+                          },
+                          messageObject: response,
+                        ))
+                    .toList(),
+              ),
+            ),
             const SizedBox(
               height: 20,
             ),
