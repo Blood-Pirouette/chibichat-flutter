@@ -6,6 +6,15 @@ import 'package:chibichat/services/api_class.dart';
 import 'package:chibichat/services/prompt_class.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+String promptInput = '';
+String ipAddress = '';
+String output = '';
+int counter = 0;
+List<Message> responses = [];
+List<String> messageStringList = [];
+String messagesString = '';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -15,33 +24,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  String promptInput = '';
-  String ipAddress = '';
-  String output = '';
-  int counter = 0;
-  List<Message> responses = [];
-  List<String> messageStringList = [];
-  String messagesString = '';
-
-  void sendPrompt() async {
-    responses.add(Message(message: promptInput, messageId: 1));
-    setState(() {});
-    promptInput = " [INST] $promptInput [/INST] ";
-    messageStringList.add(promptInput);
-    messagesString = messageStringList.join();
-
-    PromptClass promptObject = PromptClass(prompt: messagesString);
-    Map<String, dynamic> prompt = promptObject.toJson();
-    APIClass requestObject = APIClass(prompt: prompt, ipAddress: ipAddress);
-    Response responseObject = await requestObject.sendPrompt();
-    var decodedResponse = jsonDecode(responseObject.body);
-    var textObject = decodedResponse['results'];
-    output = textObject[0]['text'];
-    responses.add(Message(message: output, messageId: 2));
-    setState(() {});
-    messageStringList.add(output);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,9 +36,6 @@ class _HomeState extends State<Home> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            /* Creates output of prompt */
-            //Text(output),
-
             /* List view of messages */
             Expanded(
               child: ListView(
@@ -93,24 +72,6 @@ class _HomeState extends State<Home> {
               height: 10,
             ),
 
-            /* Textfield for IP Address */
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                SizedBox(
-                  width: 250,
-                  child: TextField(
-                    onChanged: (value) => ipAddress = value,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Enter IP Address',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
             /* Row containing button and text field for prompt*/
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -133,7 +94,9 @@ class _HomeState extends State<Home> {
                         borderRadius: BorderRadius.circular(2),
                       )),
                   onPressed: () {
-                    sendPrompt();
+                    sendPrompt(callback: () {
+                      setState(() {});
+                    });
                   },
                   child: const Text("Submit"),
                 ),
@@ -148,4 +111,25 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+}
+
+void sendPrompt({required Function callback}) async {
+  final prefs = await SharedPreferences.getInstance();
+  ipAddress = prefs.getString('IPADDRESS') ?? '';
+  responses.add(Message(message: promptInput, messageId: 1));
+  callback!();
+  promptInput = " [INST] $promptInput [/INST] ";
+  messageStringList.add(promptInput);
+  messagesString = messageStringList.join();
+
+  PromptClass promptObject = PromptClass(prompt: messagesString);
+  Map<String, dynamic> prompt = promptObject.toJson();
+  APIClass requestObject = APIClass(prompt: prompt, ipAddress: ipAddress);
+  Response responseObject = await requestObject.sendPrompt();
+  var decodedResponse = jsonDecode(responseObject.body);
+  var textObject = decodedResponse['results'];
+  output = textObject[0]['text'];
+  responses.add(Message(message: output, messageId: 2));
+  callback!();
+  messageStringList.add(output);
 }
